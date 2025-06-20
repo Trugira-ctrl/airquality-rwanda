@@ -31,9 +31,17 @@ def _fetch_multi_sensor(
     }
 
     delay = 0.5
-    for attempt in range(max_retries):
+    last_exc = None
+    for _ in range(max_retries):
         time.sleep(delay)
-        resp = requests.get(url, headers=headers, params=params, timeout=Config.REQUEST_TIMEOUT)
+        try:
+            resp = requests.get(
+                url, headers=headers, params=params, timeout=Config.REQUEST_TIMEOUT
+            )
+        except requests.RequestException as exc:
+            last_exc = exc
+            delay *= 2
+            continue
 
         if resp.status_code == 429:
             delay *= 2
@@ -47,12 +55,9 @@ def _fetch_multi_sensor(
         rows = [dict(zip(field_names, row)) for row in data.get("data", [])]
         return rows
 
-    # If we exhausted retries on 429
-    resp = requests.get(url, headers=headers, params=params, timeout=Config.REQUEST_TIMEOUT)
-    resp.raise_for_status()
-    data = resp.json()
-    field_names = data.get("fields", [])
-    return [dict(zip(field_names, row)) for row in data.get("data", [])]
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("Failed to fetch PurpleAir data")
 
 
 def extract_purpleair_data() -> List[Dict[str, Any]]:
