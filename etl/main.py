@@ -30,9 +30,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-print("Starting ETL main.py")  # Add this at the top
-
-
 class AirQualityETL:
     """Main ETL orchestrator for air quality data"""
     
