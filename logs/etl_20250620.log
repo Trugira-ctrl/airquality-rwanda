@@ -1,0 +1,58 @@
+2025-06-20 13:23:13,649 - __main__ - INFO - ============================================================
+2025-06-20 13:23:13,727 - __main__ - INFO - Starting ETL run at 2025-06-20 13:23:13.649248
+2025-06-20 13:23:13,846 - __main__ - INFO - Target schema: thierry_sandbox
+2025-06-20 13:23:13,919 - __main__ - INFO - ============================================================
+2025-06-20 13:23:13,993 - __main__ - INFO - Starting PurpleAir ETL...
+2025-06-20 13:23:15,988 - __main__ - ERROR - Error in PurpleAir ETL: ERREUR:  la colonne « sensor_index » de la relation « purpleair_readings » n'existe pas
+LINE 1: INSERT INTO thierry_sandbox.purpleair_readings (sensor_index...
+                                                        ^
+Traceback (most recent call last):
+  File "C:\Users\Utilisateur\OneDrive\Bureau\airquality-rwanda\etl\main.py", line 69, in run_purpleair_etl
+    upsert_df(
+    ~~~~~~~~~^
+        df=df,
+        ^^^^^^
+    ...<2 lines>...
+        cxn=cxn
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Utilisateur\OneDrive\Bureau\airquality-rwanda\db_utils.py", line 62, in upsert_df
+    extras.execute_batch(cur, query, values)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Utilisateur\OneDrive\Bureau\airquality-rwanda\venv\Lib\site-packages\psycopg2\extras.py", line 1216, in execute_batch
+    cur.execute(b";".join(sqls))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: ERREUR:  la colonne « sensor_index » de la relation « purpleair_readings » n'existe pas
+LINE 1: INSERT INTO thierry_sandbox.purpleair_readings (sensor_index...
+                                                        ^
+
+2025-06-20 13:23:16,005 - __main__ - ERROR - PurpleAir ETL failed: ERREUR:  la colonne « sensor_index » de la relation « purpleair_readings » n'existe pas
+LINE 1: INSERT INTO thierry_sandbox.purpleair_readings (sensor_index...
+                                                        ^
+
+2025-06-20 13:23:16,017 - __main__ - INFO - REMA ETL skipped - VPN access required
+2025-06-20 13:23:16,046 - __main__ - INFO - ============================================================
+2025-06-20 13:23:16,047 - __main__ - INFO - ETL Run Complete
+2025-06-20 13:23:16,066 - __main__ - INFO - Duration: 2.40 seconds
+2025-06-20 13:23:16,117 - __main__ - INFO - PurpleAir: 4 extracted, 0 loaded
+2025-06-20 13:23:16,166 - __main__ - INFO - Errors: 1
+2025-06-20 13:23:16,209 - __main__ - INFO - ============================================================
+2025-06-20 13:36:50,832 - __main__ - INFO - ============================================================
+2025-06-20 13:36:50,833 - __main__ - INFO - Starting ETL run at 2025-06-20 13:36:50.832145
+2025-06-20 13:36:50,836 - __main__ - INFO - Target schema: thierry_sandbox
+2025-06-20 13:36:50,838 - __main__ - INFO - ============================================================
+2025-06-20 13:36:50,844 - __main__ - INFO - Starting PurpleAir ETL...
+2025-06-20 13:36:52,096 - __main__ - INFO - Loaded 4 PurpleAir readings to thierry_sandbox.purpleair_readings
+2025-06-20 13:36:52,097 - __main__ - INFO - REMA ETL skipped - VPN access required
+2025-06-20 13:36:52,098 - __main__ - INFO - ============================================================
+2025-06-20 13:36:52,099 - __main__ - INFO - ETL Run Complete
+2025-06-20 13:36:52,099 - __main__ - INFO - Duration: 1.27 seconds
+2025-06-20 13:36:52,100 - __main__ - INFO - PurpleAir: 4 extracted, 4 loaded
+2025-06-20 13:36:52,100 - __main__ - INFO - Errors: 0
+2025-06-20 13:36:52,101 - __main__ - INFO - ============================================================
+2025-06-20 13:36:52,102 - __main__ - INFO - Verifying loaded data...
+2025-06-20 13:36:52,811 - __main__ - INFO - Database verification:
+2025-06-20 13:36:52,820 - __main__ - INFO -   Total records: 4
+2025-06-20 13:36:52,826 - __main__ - INFO -   Unique sensors: 4
+2025-06-20 13:36:52,827 - __main__ - INFO -   Date range: 2025-04-01 09:39:53+00:00 to 2025-06-20 10:36:16+00:00

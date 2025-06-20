@@ -26,6 +26,14 @@ def transform_purpleair_data(api_data: Dict[str, Any] | List[Dict[str, Any]]) ->
         df = pd.DataFrame(api_data)
 
     df = _normalize_columns(df)
+    
+    rename_map = {
+        "sensor_index": "sensor_id",
+        "pm1_0": "pm1_0_atm",
+        "pm2_5": "pm2_5_atm",
+        "pm10_0": "pm10_0_atm",
+    }
+    df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns}, inplace=True)
 
     if "last_seen" in df.columns:
         df["time_stamp"] = pd.to_datetime(df["last_seen"], unit="s", utc=True)
