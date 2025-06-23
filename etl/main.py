@@ -18,6 +18,7 @@ from config import Config
 from extract_purpleair import extract_purpleair_data
 from extract_rema import extract_rema_data
 from transform import transform_purpleair_data, transform_rema_data
+from data_quality import validate_dataframe
 
 # Set up logging
 logging.basicConfig(
@@ -41,6 +42,7 @@ class AirQualityETL:
             'rema_extracted': 0,
             'rema_loaded': 0,
             'errors': 0,
+            'quality_errors': 0,
             'start_time': None,
             'end_time': None
         }
@@ -56,6 +58,13 @@ class AirQualityETL:
             # Transform
             df = transform_purpleair_data(api_data)
             self.stats['purpleair_extracted'] = len(df)
+
+            # Data quality validation
+            issues = validate_dataframe(df)
+            if issues:
+                for issue in issues:
+                    logger.warning(f"Data quality issue: {issue}")
+                self.stats['quality_errors'] += len(issues)
             
             if df.empty:
                 logger.warning("No PurpleAir data to load")
@@ -113,6 +122,7 @@ class AirQualityETL:
         logger.info("ETL Run Complete")
         logger.info(f"Duration: {duration:.2f} seconds")
         logger.info(f"PurpleAir: {self.stats['purpleair_extracted']} extracted, {self.stats['purpleair_loaded']} loaded")
+        logger.info(f"Quality warnings: {self.stats['quality_errors']}")
         logger.info(f"Errors: {self.stats['errors']}")
         logger.info("="*60)
         
@@ -136,11 +146,31 @@ class AirQualityETL:
                 
                 df = pd.read_sql(query, cxn)
                 stats = df.iloc[0]
-                
+
                 logger.info("Database verification:")
                 logger.info(f"  Total records: {stats['total_records']}")
                 logger.info(f"  Unique sensors: {stats['unique_sensors']}")
                 logger.info(f"  Date range: {stats['oldest_reading']} to {stats['newest_reading']}")
+
+                # Additional data quality checks
+                neg_query = f"""
+                    SELECT COUNT(*) as negative_values
+                    FROM {self.schema}.purpleair_readings
+                    WHERE pm2_5_atm < 0 OR pm10_0_atm < 0
+                """
+                neg_count = pd.read_sql(neg_query, cxn).iloc[0]['negative_values']
+                if neg_count > 0:
+                    logger.warning(f"  {neg_count} readings contain negative values")
+
+                dup_query = f"""
+                    SELECT sensor_id, time_stamp, COUNT(*) as cnt
+                    FROM {self.schema}.purpleair_readings
+                    GROUP BY sensor_id, time_stamp
+                    HAVING COUNT(*) > 1
+                """
+                dup_df = pd.read_sql(dup_query, cxn)
+                if not dup_df.empty:
+                    logger.warning(f"  {len(dup_df)} duplicate sensor/time_stamp rows")
                     
         except Exception as e:
             logger.error(f"Error verifying data: {e}")
