@@ -1,0 +1,2 @@
+# Run the Air Quality ETL every 30 minutes
+*/30 * * * * cd /path/to/airquality-rwanda && /usr/bin/env python etl/main.py >> logs/cron.log 2>&1
